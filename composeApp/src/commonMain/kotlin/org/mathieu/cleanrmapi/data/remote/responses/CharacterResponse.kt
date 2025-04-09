@@ -1,6 +1,7 @@
 package org.mathieu.cleanrmapi.data.remote.responses
 
 import kotlinx.serialization.Serializable
+import org.mathieu.cleanrmapi.domain.locationPreview.LocationPreview
 
 /**
  * Represents detailed information about a character, typically received from an API response.

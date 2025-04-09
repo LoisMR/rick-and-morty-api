@@ -28,6 +28,7 @@ abstract class RMDatabase: RoomDatabase() {
     companion object {
         const val CHARACTER_TABLE = "character_table"
         const val EPISODE_TABLE = "episode_table"
+        const val LOCATION_TABLE = "location_table"
     }
 
 }
