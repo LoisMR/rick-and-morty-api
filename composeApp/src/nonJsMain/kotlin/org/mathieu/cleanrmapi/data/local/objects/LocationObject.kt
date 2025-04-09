@@ -10,15 +10,17 @@ import org.mathieu.cleanrmapi.domain.character.models.Character
 import org.mathieu.cleanrmapi.domain.location.models.Location
 
 /**
- * Represents a location entity stored in the SQLite database. This object provides fields
- * necessary to represent all the attributes of a location from the data source.
- * The object is specifically tailored for SQLite storage using Realm.
+ * Represents a location entity stored in the local SQLite database (via Room).
+ *
+ * This object is a Room entity tailored for database persistence and reflects
+ * the structure of a location as received from the remote API.
  *
  * @property id Unique identifier of the location.
- * @property name Name of the location.
- * @property type The type of the location.
- * @property dimension The dimension of the location.
- * @property created Timestamp indicating when the character entity was created in the database.
+ * @property name Name of the location (e.g., "Earth").
+ * @property type Type of the location (e.g., "Planet", "Space Station").
+ * @property dimension The dimension the location exists in (e.g., "Dimension C-137").
+ * @property residentsIds A comma-separated list of resident character IDs.
+ * @property created ISO 8601 timestamp representing when the location was created.
  */
 @Entity(tableName = RMDatabase.LOCATION_TABLE)
 class LocationObject(
@@ -32,6 +34,12 @@ class LocationObject(
     val created: String
 )
 
+/**
+ * Converts a [LocationResponse] (from the remote API) into a [LocationObject]
+ * suitable for local persistence via Room.
+ *
+ * This includes extracting resident character IDs from their URL references.
+ */
 internal fun LocationResponse.toDBObject() = LocationObject(
     id = id,
     name = name,
@@ -41,6 +49,15 @@ internal fun LocationResponse.toDBObject() = LocationObject(
     created = created
 )
 
+/**
+ * Converts a [LocationObject] from the local database into a domain-level [Location] model.
+ *
+ * It takes a list of fully resolved [Character] instances as residents,
+ * which should be fetched separately using the IDs.
+ *
+ * @param residents The list of character objects that reside in this location.
+ * @return A fully constructed [Location] domain model.
+ */
 internal fun LocationObject.toModel(residents: List<Character>) = Location(
     id = id,
     name = name,
@@ -48,4 +65,3 @@ internal fun LocationObject.toModel(residents: List<Character>) = Location(
     dimension = dimension,
     residents = residents
 )
-

@@ -19,3 +19,21 @@ We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public S
 If you face any issues, please report them on [GitHub](https://github.com/JetBrains/compose-multiplatform/issues).
 
 You can open the web application by running the `:composeApp:wasmJsBrowserDevelopmentRun` Gradle task.
+
+## 🧭 Android Architecture Overview
+
+The project is structured using **Clean Architecture**, following a clear separation of concerns:
+
+### 🧩 Module Responsibilities
+
+- **`ui/`**: Jetpack Compose screens, navigation, design system components
+- **`domain/`**: Use cases, domain models, repository interfaces (no platform dependencies)
+- **`data/`**: Implementation of repositories, local persistence (Room), remote APIs (Ktor)
+- **`common/Interfaces`**: Shared contracts for platform-specific features (like audio, storage)
+- **`PlatformModules.kt`**: Platform-specific DI module declarations per target (`actual fun platformModules()`)
+
+---
+
+## ⚙️ Dependency Injection with Koin
+
+We use [**Koin**](https://insert-koin.io/) as a lightweight dependency injection framework across all targets.

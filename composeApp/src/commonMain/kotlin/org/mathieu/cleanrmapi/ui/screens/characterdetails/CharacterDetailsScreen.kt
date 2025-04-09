@@ -218,6 +218,7 @@ private object CharacterDetailsContent {
 
         Spacer(Modifier.width(16.dp))
 
+        // Link to go on LocationDetailsScreen
         IconWithImage(
             modifier = Modifier
                 .weight(1f)

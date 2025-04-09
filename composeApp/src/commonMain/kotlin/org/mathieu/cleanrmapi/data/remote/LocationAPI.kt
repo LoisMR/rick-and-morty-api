@@ -9,11 +9,11 @@ import org.mathieu.cleanrmapi.data.remote.responses.LocationResponse
 internal class LocationApi(private val client: HttpClient) {
 
     /**
-     * Récupère les détails d'une location via son ID.
+     * Fetches the details of a location by its ID.
      *
-     * @param id L'identifiant de la location à récupérer.
-     * @return Un [LocationResponse] représentant la location ou null si elle n'existe pas.
-     * @throws Exception si la requête échoue.
+     * @param id The ID of the location to retrieve.
+     * @return A [LocationResponse] representing the location, or null if it doesn't exist.
+     * @throws Exception if the request fails or the response is not successful.
      */
     suspend fun getLocation(id: Int): LocationResponse? = client
         .get("location/$id")
