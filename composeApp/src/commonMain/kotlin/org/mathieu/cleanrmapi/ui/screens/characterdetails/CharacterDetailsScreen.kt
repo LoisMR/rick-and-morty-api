@@ -6,29 +6,14 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Home
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -50,11 +35,7 @@ import org.mathieu.cleanrmapi.domain.character.models.CharacterGender
 import org.mathieu.cleanrmapi.domain.character.models.CharacterStatus
 import org.mathieu.cleanrmapi.domain.episode.models.Episode
 import org.mathieu.cleanrmapi.domain.locationPreview.LocationPreview
-import org.mathieu.cleanrmapi.ui.core.composables.Avatar
-import org.mathieu.cleanrmapi.ui.core.composables.BackArrow
-import org.mathieu.cleanrmapi.ui.core.composables.IconWithImage
-import org.mathieu.cleanrmapi.ui.core.composables.PreviewContent
-import org.mathieu.cleanrmapi.ui.core.composables.Screen
+import org.mathieu.cleanrmapi.ui.core.composables.*
 import org.mathieu.cleanrmapi.ui.core.extensions.imageVector
 import org.mathieu.cleanrmapi.ui.core.extensions.text
 import org.mathieu.cleanrmapi.ui.core.theme.PrimaryColor
@@ -79,16 +60,14 @@ fun CharacterDetailsScreen(
             onClickBack = navController::popBackStack,
             onAction = viewModel::handleAction
         )
-
     }
-
 }
 
 @Composable
 private fun Content(
     state: CharacterDetailsState = CharacterDetailsState.Loading,
-    onAction: (CharacterDetailsAction) -> Unit = { },
-    onClickBack: () -> Unit = { }
+    onAction: (CharacterDetailsAction) -> Unit = {},
+    onClickBack: () -> Unit = {}
 ) = Box(
     modifier = Modifier
         .fillMaxSize()
@@ -117,7 +96,6 @@ private fun Content(
     }
 }
 
-
 @Composable
 private fun ErrorView(error: String) {
     Text(
@@ -131,7 +109,6 @@ private fun ErrorView(error: String) {
     )
 }
 
-
 private object CharacterDetailsContent {
 
     @Composable
@@ -140,27 +117,26 @@ private object CharacterDetailsContent {
         onAction: (CharacterDetailsAction) -> Unit
     ) {
 
-        var offsetY by remember {
-            mutableFloatStateOf(0f)
-        }
+        var offsetY by remember { mutableFloatStateOf(0f) }
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
 
             Header(
                 state = state,
-                offsetY = offsetY
+                offsetY = offsetY,
+                onAction = onAction
             )
 
             LazyColumn {
                 itemsIndexed(state.episodes) { index, episode ->
                     if (index == 0) {
-                        Box(modifier = Modifier.onGloballyPositioned { offsetY = it.positionInParent().y })
+                        Box(modifier = Modifier.onGloballyPositioned {
+                            offsetY = it.positionInParent().y
+                        })
                     }
-                    
-                    
+
                     EpisodeCard(
                         modifier = Modifier
                             .padding(8.dp)
@@ -169,28 +145,20 @@ private object CharacterDetailsContent {
                             },
                         episode = episode
                     )
-
                 }
-
             }
-
         }
-
-
     }
-
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     private fun Header(
         state: CharacterDetailsState.Loaded,
-        offsetY: Float
+        offsetY: Float,
+        onAction: (CharacterDetailsAction) -> Unit
     ) {
-
         val density = LocalDensity.current
-
         val additionalHeight: Dp = with(density) { offsetY.toDp() }
-
         val animatedHeight by animateDpAsState(targetValue = 200.dp + additionalHeight)
 
         Box(
@@ -205,7 +173,6 @@ private object CharacterDetailsContent {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Bottom
             ) {
-
                 Text(
                     modifier = Modifier
                         .background(SurfaceColor, RoundedCornerShape(4.dp))
@@ -220,19 +187,19 @@ private object CharacterDetailsContent {
                 AdditionalInfo(
                     gender = state.gender,
                     status = state.status,
-                    location = state.location.name
+                    location = state.location,
+                    onAction = onAction
                 )
-
             }
         }
     }
-
 
     @Composable
     private fun AdditionalInfo(
         gender: CharacterGender,
         status: CharacterStatus,
-        location: String
+        location: LocationPreview,
+        onAction: (CharacterDetailsAction) -> Unit
     ) = Row(
         modifier = Modifier
             .padding(8.dp)
@@ -245,50 +212,53 @@ private object CharacterDetailsContent {
 
         IconWithImage(
             modifier = Modifier.weight(1f),
-            imageVector = gender.imageVector, text = gender.text
+            imageVector = gender.imageVector,
+            text = gender.text
+        )
+
+        Spacer(Modifier.width(16.dp))
+
+        IconWithImage(
+            modifier = Modifier
+                .weight(1f)
+                .clickable {
+                    onAction(CharacterDetailsAction.SelectedLocation(location))
+                },
+            imageVector = Icons.Rounded.Home,
+            text = location.name
         )
 
         Spacer(Modifier.width(16.dp))
 
         IconWithImage(
             modifier = Modifier.weight(1f),
-            imageVector = Icons.Rounded.Home, text = location
-        )
-
-        Spacer(Modifier.width(16.dp))
-
-        IconWithImage(
-            modifier = Modifier.weight(1f),
-            imageVector = status.imageVector, text = status.text
+            imageVector = status.imageVector,
+            text = status.text
         )
 
         Spacer(Modifier.width(8.dp))
-
     }
 
     @Composable
     private fun EpisodeCard(
-        modifier: Modifier, episode: Episode
-    ) =
-        Column(
-            modifier = modifier
-                .shadow(1.dp, spotColor = PrimaryColor)
-                .background(SurfaceColor)
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-        ) {
+        modifier: Modifier,
+        episode: Episode
+    ) = Column(
+        modifier = modifier
+            .shadow(1.dp, spotColor = PrimaryColor)
+            .background(SurfaceColor)
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Text(text = episode.airDate, fontSize = 11.sp)
 
-            Text(text = episode.airDate, fontSize = 11.sp)
-
-            Text(
-                text = "${episode.episode} - ${episode.name}",
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis, fontSize = 13.sp
-            )
-
-        }
-
-
+        Text(
+            text = "${episode.episode} - ${episode.name}",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontSize = 13.sp
+        )
+    }
 }
 
 @Preview
@@ -296,4 +266,3 @@ private object CharacterDetailsContent {
 private fun CharacterDetailsPreview() = PreviewContent {
     Content()
 }
-

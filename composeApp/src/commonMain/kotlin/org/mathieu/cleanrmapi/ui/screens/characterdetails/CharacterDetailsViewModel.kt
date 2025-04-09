@@ -1,6 +1,7 @@
 package org.mathieu.cleanrmapi.ui.screens.characterdetails
 
 import org.koin.core.component.inject
+import org.mathieu.cleanrmapi.common.Interfaces.SoundPlayer
 import org.mathieu.cleanrmapi.domain.character.CharacterRepository
 import org.mathieu.cleanrmapi.domain.character.models.CharacterGender
 import org.mathieu.cleanrmapi.domain.character.models.CharacterStatus
@@ -10,13 +11,15 @@ import org.mathieu.cleanrmapi.ui.core.Destination
 import org.mathieu.cleanrmapi.ui.core.ViewModel
 
 sealed interface CharacterDetailsAction {
-    data class SelectedEpisode(val episode: Episode): CharacterDetailsAction
+    data class SelectedEpisode(val episode: Episode) : CharacterDetailsAction
+    data class SelectedLocation(val location: LocationPreview) : CharacterDetailsAction
 }
 
 class CharacterDetailsViewModel :
     ViewModel<CharacterDetailsState>(CharacterDetailsState.Loading) {
 
     private val characterRepository: CharacterRepository by inject()
+    private val soundPlayer: SoundPlayer by inject()
 
     fun init(characterId: Int) {
 
@@ -51,13 +54,15 @@ class CharacterDetailsViewModel :
     }
 
     fun handleAction(action: CharacterDetailsAction) {
-        when(action) {
+        when (action) {
             is CharacterDetailsAction.SelectedEpisode ->
                 sendEvent(Destination.EpisodeDetails(action.episode.id.toString()))
+            is CharacterDetailsAction.SelectedLocation -> {
+                soundPlayer.playSound()
+                sendEvent(Destination.LocationDetails(action.location.id))
+            }
         }
     }
-
-
 }
 
 sealed interface CharacterDetailsState {

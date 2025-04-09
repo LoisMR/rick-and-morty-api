@@ -9,13 +9,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import org.mathieu.cleanrmapi.data.local.objects.CharacterObject
 import org.mathieu.cleanrmapi.data.local.objects.EpisodeObject
+import org.mathieu.cleanrmapi.data.local.objects.LocationObject
 
 @Database(
     entities = [
         CharacterObject::class,
-        EpisodeObject::class
+        EpisodeObject::class,
+        LocationObject::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 
@@ -24,6 +26,7 @@ abstract class RMDatabase: RoomDatabase() {
 
     abstract fun characterDAO(): CharacterDAO
     abstract fun episodeDAO(): EpisodeDAO
+    abstract fun locationDAO() : LocationDAO
 
     companion object {
         const val CHARACTER_TABLE = "character_table"
